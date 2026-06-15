@@ -1,0 +1,213 @@
+/* ===== Base / reset (from El Destino.dc.html <helmet>) ===== */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Hide the system cursor on precise pointers — the page draws its own ring + dot */
+@media (pointer: fine) {
+  body,
+  body a,
+  body button {
+    cursor: none !important;
+  }
+}
+
+body {
+  margin: 0;
+  background: #faf7f1;
+  -webkit-font-smoothing: antialiased;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* ===== Keyframes ===== */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(46px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes fadein {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes zoomslow {
+  from {
+    transform: scale(1.02);
+  }
+  to {
+    transform: scale(1.14);
+  }
+}
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+@keyframes cue {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.9;
+  }
+  50% {
+    transform: translateY(10px);
+    opacity: 0.4;
+  }
+}
+
+/* ===== Hover utilities (port of the prototype's `style-hover` attribute) ===== */
+.fx-link {
+  transition: background 0.3s ease, transform 0.3s ease;
+}
+.fx-lift:hover {
+  background: #fff;
+  transform: translateY(-2px);
+}
+.fx-brighten:hover {
+  background: #fff;
+}
+.fx-ghost:hover {
+  background: rgba(245, 239, 230, 0.1);
+}
+
+/* ===== Responsive (sobreescribe estilos inline en pantallas chicas) ===== */
+@media (max-width: 900px) {
+  [data-grid="2"],
+  [data-grid="3"] {
+    grid-template-columns: 1fr !important;
+    gap: 38px !important;
+  }
+  [data-grid-rev] > div:first-child {
+    order: 2;
+  }
+  [data-grid-rev] > div:last-child {
+    order: 1;
+  }
+  #habitaciones [data-grid="2"] {
+    padding: 0 7vw !important;
+  }
+  /* Actividades: en pantallas sin hover, las 3 zonas se apilan, cada una con su foto */
+  [data-activities] {
+    height: auto !important;
+  }
+  [data-act-bg] {
+    display: none !important;
+  }
+  [data-act-scrim-global] {
+    display: none !important;
+  }
+  [data-act-row] {
+    position: static !important;
+    flex-direction: column !important;
+  }
+  [data-act-zone] {
+    min-height: 300px !important;
+    border-left: none !important;
+  }
+  [data-act-img] {
+    display: block !important;
+  }
+  [data-act-imgscrim] {
+    display: block !important;
+  }
+  [data-act-title] {
+    opacity: 1 !important;
+    letter-spacing: 0.08em !important;
+  }
+  [data-act-list] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  [data-act-div] {
+    display: none !important;
+  }
+  /* Habitaciones: en pantallas chicas no hay pin, se apila vertical */
+  [data-hscroll] {
+    height: auto !important;
+  }
+  [data-hscroll-pin] {
+    position: static !important;
+    height: auto !important;
+    overflow: visible !important;
+    display: block !important;
+  }
+  [data-hscroll-track] {
+    flex-direction: column !important;
+    transform: none !important;
+    gap: 22px !important;
+    padding: 84px 22px !important;
+  }
+  [data-hscroll-intro],
+  [data-hscroll-end] {
+    flex: none !important;
+    width: 100% !important;
+  }
+  [data-hscroll-card] {
+    flex: none !important;
+    width: 100% !important;
+    height: auto !important;
+    aspect-ratio: 4/3.4 !important;
+  }
+}
+@media (max-width: 640px) {
+  #lugar {
+    padding: 84px 22px 76px !important;
+    border-radius: 28px 28px 0 0 !important;
+  }
+  #habitaciones {
+    padding: 80px 0 !important;
+  }
+  #actividades {
+    padding: 84px 22px 76px !important;
+  }
+  #ubicacion {
+    padding: 84px 22px !important;
+  }
+  #playa {
+    min-height: 540px !important;
+    height: 86vh !important;
+  }
+  #playa > div {
+    padding: 0 22px 60px !important;
+  }
+  #lugar p[data-type] + p,
+  #lugar p {
+    font-size: 16px !important;
+  }
+  [data-float-cta] {
+    right: 16px !important;
+    bottom: 16px !important;
+    padding: 14px 26px !important;
+    font-size: 12px !important;
+    letter-spacing: 0.16em !important;
+  }
+  #lugar .quote-big,
+  [data-type].quote-big {
+    font-size: 24px !important;
+  }
+  #ubicacion iframe {
+    height: 320px !important;
+  }
+  #galeria img {
+    height: 210px !important;
+  }
+  footer img {
+    width: 230px !important;
+  }
+}
