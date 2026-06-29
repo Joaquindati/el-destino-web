@@ -7,24 +7,24 @@ import { mountFx } from "./fx";
    Data (ported from the prototype's renderVals / helper methods)
    ============================================================ */
 const SERIF = "'Cormorant Garamond', Georgia, serif";
-const WA = "http://wa.me/5493407667777";
+const WA = "https://wa.me/5493407667777?text=Hola!%20Quiero%20reservar%20en%20El%20Destino";
 
 const wix = (id, fill) =>
   `https://static.wixstatic.com/media/${id}~mv2.jpg/v1/fill/${fill}/${id}~mv2.jpg`;
 
-const ROOM_LABELS = ["Suite", "Single", "Doble", "Doble Twin", "Triple", "Cuádruple"];
-const ROOM_IDS = [
-  "59862d_74c6f720ca6c4622bfcfbeab25696ba7",
-  "59862d_96fbf2a4cc874ab5a460b04686917a36",
-  "59862d_927585beda0a40f19439ce1bdd2bdb48",
-  "59862d_17152af4d2be433f8bde0779692dc1be",
-  "59862d_bc346bfccfe14c8d991121c57fb6af00",
-  "59862d_3f9596924adf4a6c8952f09719d1cd2d",
+// Fotos nuevas (HEIC → WebP, en /public/assets/habitaciones). "Single" mantiene su foto de Wix.
+const roomCards = [
+  { src: "/assets/habitaciones/suite.webp", label: "Suite", text: "Amplitud y luz, toda en blanco." },
+  {
+    src: wix("59862d_96fbf2a4cc874ab5a460b04686917a36", "w_1500,h_1800,al_c,q_90"),
+    label: "Single",
+    text: "Acogedora, ideal para uno.",
+  },
+  { src: "/assets/habitaciones/doble.webp", label: "Doble", text: "Calidez y carácter para dos." },
+  { src: "/assets/habitaciones/doble-twin.webp", label: "Doble Twin", text: "Dos camas, en madera natural." },
+  { src: "/assets/habitaciones/triple.webp", label: "Triple", text: "Espíritu marinero para tres." },
+  { src: "/assets/habitaciones/cuadruple.webp", label: "Cuádruple", text: "Living náutico para la familia." },
 ];
-const roomCards = ROOM_IDS.map((id, i) => ({
-  src: wix(id, "w_1500,h_1800,al_c,q_90"),
-  label: ROOM_LABELS[i] || "El Destino",
-}));
 
 const STRIP_A_IDS = [
   "59862d_0533244ab7674d5bbafba80bde43841e",
@@ -49,6 +49,13 @@ const buildStrip = (ids) => {
 };
 const stripA = buildStrip(STRIP_A_IDS);
 const stripB = buildStrip(STRIP_B_IDS);
+
+// TODO Eventos: relleno temporal con fotos de la galería. Reemplazar por las imágenes reales de eventos.
+const EVENT_IMAGES = [
+  wix("59862d_0533244ab7674d5bbafba80bde43841e", "w_900,h_675,al_c,q_85"),
+  wix("59862d_8eca0eed171f4730805a37062843f134", "w_900,h_675,al_c,q_85"),
+  wix("59862d_203c7c915b9148a698ff7ad74e8d6adc", "w_900,h_675,al_c,q_85"),
+];
 
 const AMENITIES = [
   "Terraza privada",
@@ -104,8 +111,8 @@ const CONTACT = [
    ============================================================ */
 const amenityCell = {
   padding: "13px 4px",
-  borderTop: "1px solid rgba(245,239,230,.18)",
-  color: "#EFE6D6",
+  borderTop: "1px solid rgba(58,46,34,.16)",
+  color: "#3A2E22",
   fontSize: 14.5,
   letterSpacing: ".06em",
   fontWeight: 300,
@@ -263,7 +270,7 @@ export default function Page() {
             position: "absolute",
             inset: 0,
             background:
-              "linear-gradient(180deg, rgba(26,19,12,.42) 0%, rgba(26,19,12,.18) 45%, rgba(46,36,27,.72) 100%)",
+              "linear-gradient(180deg, rgba(26,19,12,.52) 0%, rgba(26,19,12,.34) 45%, rgba(46,36,27,.82) 100%)",
           }}
         />
         <div
@@ -302,7 +309,7 @@ export default function Page() {
             }}
             data-reveal="460"
           >
-            Pequeños detalles. Grandes momentos.
+            Aquí solo soplan buenos vientos
           </p>
           <p
             style={{
@@ -314,7 +321,7 @@ export default function Page() {
             }}
             data-reveal="600"
           >
-            Aquí solo soplan buenos vientos
+            Pequeños detalles. Grandes momentos.
           </p>
           <a
             href={WA}
@@ -341,7 +348,7 @@ export default function Page() {
           </a>
         </div>
         <a
-          href="#lugar"
+          href="#habitaciones"
           aria-label="Bajar"
           style={{
             position: "absolute",
@@ -358,6 +365,224 @@ export default function Page() {
         </a>
       </header>
 
+      {/* ===== HABITACIONES (scroll horizontal con pin) ===== */}
+      <section
+        id="habitaciones"
+        data-theme="light"
+        data-hscroll=""
+        style={{
+          position: "relative",
+          zIndex: 2,
+          marginTop: -40,
+          borderRadius: "40px 40px 0 0",
+          background: "#EDE7DD",
+          backgroundImage: "url(/assets/texturas/palos-3.webp)",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundAttachment: "fixed",
+          boxShadow: "0 -34px 60px rgba(30,22,15,.32)",
+        }}
+      >
+        <div
+          data-hscroll-pin=""
+          style={{
+            position: "sticky",
+            top: 0,
+            height: "100vh",
+            overflow: "hidden",
+            display: "flex",
+            alignItems: "center",
+          }}
+        >
+          <div
+            data-hscroll-track=""
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 34,
+              padding: "0 7vw",
+              willChange: "transform",
+            }}
+          >
+            {/* Panel de texto (primer panel) */}
+            <div
+              data-hscroll-intro=""
+              style={{
+                flex: "0 0 clamp(330px, 34vw, 520px)",
+                boxSizing: "border-box",
+                backgroundColor: "#EBE4CA",
+                backgroundImage:
+                  "linear-gradient(rgba(235,228,202,.84), rgba(235,228,202,.84)), url(/assets/texturas/palos-3.webp)",
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                padding: "48px 44px",
+                borderRadius: 10,
+                boxShadow: "0 20px 50px rgba(74,53,39,.18)",
+              }}
+            >
+              <p style={eyebrow("#8A6A4F", "0 0 18px")}>Habitaciones</p>
+              <h2
+                style={{
+                  margin: "0 0 24px",
+                  fontFamily: SERIF,
+                  fontWeight: 500,
+                  fontSize: "clamp(30px,3vw,44px)",
+                  lineHeight: 1.2,
+                  color: "#3A2E22",
+                  textWrap: "balance",
+                }}
+                data-type="x"
+              >
+                Dormir bien cambia todo
+              </h2>
+              <p
+                style={{
+                  margin: "0 0 30px",
+                  fontSize: 16,
+                  lineHeight: 1.8,
+                  fontWeight: 300,
+                  color: "#5C4D3C",
+                  textWrap: "pretty",
+                }}
+              >
+                Suite, single, doble, doble twin, triple y cuádruple. Cada categoría pensada para tu
+                mejor descanso.
+              </p>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr",
+                  gap: 0,
+                  borderBottom: "1px solid rgba(58,46,34,.16)",
+                }}
+              >
+                {AMENITIES.map((a) => (
+                  <div key={a} style={amenityCell}>
+                    {a}
+                  </div>
+                ))}
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 14, marginTop: 34, color: "#8A6A4F" }}>
+                <span style={{ fontSize: 12, letterSpacing: ".24em", textTransform: "uppercase" }}>
+                  Deslizá
+                </span>
+                <span style={{ flex: 1, height: 1, background: "rgba(138,106,79,.5)", minWidth: 40 }} />
+                <span style={{ fontSize: 18 }}>→</span>
+              </div>
+            </div>
+
+            {/* Fotos */}
+            {roomCards.map((card) => (
+              <figure
+                key={card.label}
+                data-hscroll-card=""
+                style={{
+                  margin: 0,
+                  flex: "0 0 clamp(420px, 44vw, 720px)",
+                  height: "72vh",
+                  position: "relative",
+                  borderRadius: 6,
+                  overflow: "hidden",
+                  boxShadow: "0 30px 80px rgba(0,0,0,.45)",
+                }}
+              >
+                <img
+                  src={card.src}
+                  alt={card.label}
+                  style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                />
+                <div
+                  style={{
+                    position: "absolute",
+                    inset: "auto 0 0 0",
+                    height: 150,
+                    background: "linear-gradient(180deg,transparent,rgba(20,14,9,.7))",
+                  }}
+                />
+                <figcaption
+                  style={{
+                    position: "absolute",
+                    left: 26,
+                    right: 26,
+                    bottom: 24,
+                    color: "#F5EFE6",
+                    fontFamily: SERIF,
+                    fontSize: 24,
+                    letterSpacing: ".02em",
+                  }}
+                >
+                  {card.label}
+                  <span
+                    style={{
+                      display: "block",
+                      marginTop: 6,
+                      fontFamily: "'Jost', Helvetica, sans-serif",
+                      fontSize: 13,
+                      fontWeight: 300,
+                      letterSpacing: ".04em",
+                      color: "rgba(245,239,230,.85)",
+                    }}
+                  >
+                    {card.text}
+                  </span>
+                </figcaption>
+              </figure>
+            ))}
+
+            {/* Cierre: CTA */}
+            <div
+              data-hscroll-end=""
+              style={{
+                flex: "0 0 clamp(280px, 26vw, 420px)",
+                boxSizing: "border-box",
+                textAlign: "left",
+                backgroundColor: "#EBE4CA",
+                backgroundImage:
+                  "linear-gradient(rgba(235,228,202,.84), rgba(235,228,202,.84)), url(/assets/texturas/palos-3.webp)",
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                padding: "48px 44px",
+                borderRadius: 10,
+                boxShadow: "0 20px 50px rgba(74,53,39,.18)",
+              }}
+            >
+              <p
+                style={{
+                  margin: "0 0 18px",
+                  fontFamily: SERIF,
+                  fontStyle: "italic",
+                  fontSize: "clamp(24px,2.4vw,34px)",
+                  lineHeight: 1.35,
+                  color: "#3A2E22",
+                }}
+              >
+                Tu próxima pausa empieza acá.
+              </p>
+              <a
+                href={WA}
+                target="_blank"
+                rel="noopener"
+                className="fx-link fx-brighten"
+                style={{
+                  display: "inline-block",
+                  color: "#2E241B",
+                  background: "#EBDFC9",
+                  textDecoration: "none",
+                  fontSize: 13.5,
+                  letterSpacing: ".2em",
+                  textTransform: "uppercase",
+                  fontWeight: 500,
+                  padding: "15px 34px",
+                  borderRadius: 999,
+                }}
+              >
+                Consultar disponibilidad
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ===== EL LUGAR ===== */}
       <section
         id="lugar"
@@ -365,11 +590,8 @@ export default function Page() {
         style={{
           position: "relative",
           zIndex: 2,
-          marginTop: -40,
-          borderRadius: "40px 40px 0 0",
           padding: "130px 7vw 110px",
           background: "linear-gradient(180deg,#FAF7F1, #F3ECDF)",
-          boxShadow: "0 -34px 60px rgba(30,22,15,.32)",
         }}
       >
         <div
@@ -384,7 +606,7 @@ export default function Page() {
           }}
         >
           <div data-reveal="0">
-            <p style={eyebrow("#A3835F", "0 0 18px")}>Bienvenidos</p>
+            <p style={eyebrow("#A3835F", "0 0 18px")}>Menos apuro. Más destino.</p>
             <h2
               style={{
                 margin: "0 0 26px",
@@ -397,7 +619,7 @@ export default function Page() {
               }}
               data-type="x"
             >
-              Un lugar para quedarse un poco más
+              Tu próxima pausa empieza acá.
             </h2>
             <p style={bodyText("0 0 16px")}>
               Naturaleza, confort y experiencias que invitan a disfrutar sin apuros. Habitaciones
@@ -426,7 +648,9 @@ export default function Page() {
               style={{
                 position: "absolute",
                 inset: "26px -26px -26px 26px",
-                background: "repeating-linear-gradient(90deg,#E4D5BC 0 3px,#EADDC8 3px 14px)",
+                backgroundImage: "url(/assets/texturas/palos-2.webp)",
+                backgroundSize: "cover",
+                backgroundPosition: "center",
                 borderRadius: 4,
               }}
             />
@@ -468,283 +692,6 @@ export default function Page() {
         >
           Porque algunas escapadas no se miden en días. Se miden en momentos.
         </p>
-      </section>
-
-      {/* ===== HABITACIONES (scroll horizontal con pin) ===== */}
-      <section
-        id="habitaciones"
-        data-theme="dark"
-        data-hscroll=""
-        style={{
-          position: "relative",
-          zIndex: 2,
-          background: "#2E241B",
-          backgroundImage:
-            "repeating-linear-gradient(90deg, rgba(255,255,255,.025) 0 2px, rgba(0,0,0,0) 2px 90px), linear-gradient(180deg,#33281D,#241B12)",
-        }}
-      >
-        <div
-          data-hscroll-pin=""
-          style={{
-            position: "sticky",
-            top: 0,
-            height: "100vh",
-            overflow: "hidden",
-            display: "flex",
-            alignItems: "center",
-          }}
-        >
-          <div
-            data-hscroll-track=""
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 34,
-              padding: "0 7vw",
-              willChange: "transform",
-            }}
-          >
-            {/* Panel de texto (primer panel) */}
-            <div data-hscroll-intro="" style={{ flex: "0 0 clamp(330px, 34vw, 520px)", boxSizing: "border-box" }}>
-              <p style={eyebrow("#C9A878", "0 0 18px")}>Habitaciones</p>
-              <h2
-                style={{
-                  margin: "0 0 24px",
-                  fontFamily: SERIF,
-                  fontWeight: 500,
-                  fontSize: "clamp(30px,3vw,44px)",
-                  lineHeight: 1.2,
-                  color: "#F5EFE6",
-                  textWrap: "balance",
-                }}
-                data-type="x"
-              >
-                Dormir bien cambia todo
-              </h2>
-              <p
-                style={{
-                  margin: "0 0 30px",
-                  fontSize: 16,
-                  lineHeight: 1.8,
-                  fontWeight: 300,
-                  color: "#D8CBB8",
-                  textWrap: "pretty",
-                }}
-              >
-                Suite, single, doble, doble twin, triple y cuádruple. Cada categoría pensada para tu
-                mejor descanso.
-              </p>
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "1fr 1fr",
-                  gap: 0,
-                  borderBottom: "1px solid rgba(245,239,230,.18)",
-                }}
-              >
-                {AMENITIES.map((a) => (
-                  <div key={a} style={amenityCell}>
-                    {a}
-                  </div>
-                ))}
-              </div>
-              <div style={{ display: "flex", alignItems: "center", gap: 14, marginTop: 34, color: "#C9A878" }}>
-                <span style={{ fontSize: 12, letterSpacing: ".24em", textTransform: "uppercase" }}>
-                  Deslizá
-                </span>
-                <span style={{ flex: 1, height: 1, background: "rgba(201,168,120,.5)", minWidth: 40 }} />
-                <span style={{ fontSize: 18 }}>→</span>
-              </div>
-            </div>
-
-            {/* Fotos */}
-            {roomCards.map((card) => (
-              <figure
-                key={card.label}
-                data-hscroll-card=""
-                style={{
-                  margin: 0,
-                  flex: "0 0 clamp(420px, 44vw, 720px)",
-                  height: "72vh",
-                  position: "relative",
-                  borderRadius: 6,
-                  overflow: "hidden",
-                  boxShadow: "0 30px 80px rgba(0,0,0,.45)",
-                }}
-              >
-                <img
-                  src={card.src}
-                  alt={card.label}
-                  style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-                />
-                <div
-                  style={{
-                    position: "absolute",
-                    inset: "auto 0 0 0",
-                    height: 150,
-                    background: "linear-gradient(180deg,transparent,rgba(20,14,9,.7))",
-                  }}
-                />
-                <figcaption
-                  style={{
-                    position: "absolute",
-                    left: 26,
-                    bottom: 24,
-                    color: "#F5EFE6",
-                    fontFamily: SERIF,
-                    fontSize: 24,
-                    letterSpacing: ".02em",
-                  }}
-                >
-                  {card.label}
-                </figcaption>
-              </figure>
-            ))}
-
-            {/* Cierre: CTA */}
-            <div
-              data-hscroll-end=""
-              style={{ flex: "0 0 clamp(280px, 26vw, 420px)", boxSizing: "border-box", textAlign: "left" }}
-            >
-              <p
-                style={{
-                  margin: "0 0 18px",
-                  fontFamily: SERIF,
-                  fontStyle: "italic",
-                  fontSize: "clamp(24px,2.4vw,34px)",
-                  lineHeight: 1.35,
-                  color: "#F5EFE6",
-                }}
-              >
-                Tu próxima pausa empieza acá.
-              </p>
-              <a
-                href={WA}
-                target="_blank"
-                rel="noopener"
-                className="fx-link fx-brighten"
-                style={{
-                  display: "inline-block",
-                  color: "#2E241B",
-                  background: "#EBDFC9",
-                  textDecoration: "none",
-                  fontSize: 13.5,
-                  letterSpacing: ".2em",
-                  textTransform: "uppercase",
-                  fontWeight: 500,
-                  padding: "15px 34px",
-                  borderRadius: 999,
-                }}
-              >
-                Consultar disponibilidad
-              </a>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ===== PLAYA BLANCA ===== */}
-      <section
-        id="playa"
-        data-theme="dark"
-        style={{
-          position: "relative",
-          zIndex: 2,
-          height: "96vh",
-          minHeight: 620,
-          overflow: "hidden",
-          display: "grid",
-          placeItems: "center",
-          background: "#9AA9A2",
-        }}
-      >
-        <div
-          data-playa-video=""
-          style={{ position: "absolute", inset: 0, clipPath: "inset(0 0 0 100%)", willChange: "clip-path,transform" }}
-        >
-          <video
-            src="https://video.wixstatic.com/video/11062b_c0f82e7370a041fb92d161623b53b27a/1080p/mp4/file.mp4"
-            autoPlay
-            muted
-            loop
-            playsInline
-            poster={wix("59862d_6edc706cf75948dfb049216adaa35e33", "w_2940,h_1494,al_c,q_90")}
-            style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
-          />
-          <div
-            style={{
-              position: "absolute",
-              inset: 0,
-              background:
-                "linear-gradient(180deg, rgba(26,19,12,.28), rgba(26,19,12,.12) 45%, rgba(30,22,13,.55))",
-            }}
-          />
-        </div>
-        <div
-          data-reveal="0"
-          style={{
-            position: "relative",
-            zIndex: 3,
-            textAlign: "center",
-            padding: "0 24px",
-            maxWidth: 900,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: 18,
-          }}
-        >
-          <p style={eyebrow("rgba(255,255,255,.82)", 0)}>A pasos del río</p>
-          <h2
-            style={{
-              margin: 0,
-              fontFamily: SERIF,
-              fontWeight: 500,
-              fontSize: "clamp(44px,7vw,104px)",
-              lineHeight: 1.04,
-              color: "#FFFFFF",
-              textWrap: "balance",
-            }}
-          >
-            Playa Blanca
-          </h2>
-          <p
-            style={{
-              margin: 0,
-              maxWidth: 600,
-              fontSize: 16.5,
-              lineHeight: 1.8,
-              fontWeight: 300,
-              color: "rgba(255,255,255,.92)",
-              textWrap: "pretty",
-            }}
-          >
-            Frente a la posada, cruzando la calle, te espera nuestro parador sobre la costa del
-            Paraná. Playa, naturaleza, gastronomía y algunos de los atardeceres más lindos de la
-            región.
-          </p>
-          <a
-            href={WA}
-            target="_blank"
-            rel="noopener"
-            className="fx-link fx-brighten"
-            style={{
-              marginTop: 8,
-              display: "inline-block",
-              color: "#2E241B",
-              background: "#F5EFE6",
-              textDecoration: "none",
-              fontSize: 13.5,
-              letterSpacing: ".2em",
-              textTransform: "uppercase",
-              fontWeight: 500,
-              padding: "15px 34px",
-              borderRadius: 999,
-            }}
-          >
-            Conocer Playa Blanca
-          </a>
-        </div>
       </section>
 
       {/* ===== ACTIVIDADES ===== */}
@@ -924,6 +871,176 @@ export default function Page() {
         </div>
       </section>
 
+      {/* ===== EVENTOS ===== */}
+      {/* TODO: reemplazar texto e imágenes con el contenido que pasó el cliente (enviado el viernes). */}
+      <section
+        id="eventos"
+        data-theme="light"
+        style={{
+          position: "relative",
+          zIndex: 2,
+          padding: "130px 7vw 110px",
+          background: "#FCFAF6",
+          backgroundImage: "url(/assets/texturas/palos-3.webp)",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundBlendMode: "multiply",
+        }}
+      >
+        <div style={{ maxWidth: 1280, margin: "0 auto" }}>
+          <div style={{ maxWidth: 720, margin: "0 auto 56px", textAlign: "center" }} data-reveal="0">
+            <p style={eyebrow("#A3835F", "0 0 18px")}>Eventos</p>
+            <h2
+              style={{
+                margin: "0 0 22px",
+                fontFamily: SERIF,
+                fontWeight: 500,
+                fontSize: "clamp(32px,3.4vw,46px)",
+                lineHeight: 1.2,
+                color: "#3A2E22",
+                textWrap: "balance",
+              }}
+              data-type="x"
+            >
+              Celebrá en El Destino
+            </h2>
+            <p style={bodyText(0)}>
+              Un entorno único para casamientos, encuentros y eventos especiales, rodeado de
+              naturaleza y a pasos del río. (Texto provisorio — a reemplazar con el contenido del cliente.)
+            </p>
+          </div>
+          <div
+            data-grid="3"
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(3, 1fr)",
+              gap: 18,
+            }}
+            data-reveal="0"
+          >
+            {EVENT_IMAGES.map((src, i) => (
+              <img
+                key={i}
+                src={src}
+                alt={`El Destino — eventos ${i + 1}`}
+                style={{
+                  width: "100%",
+                  aspectRatio: "4 / 3",
+                  objectFit: "cover",
+                  borderRadius: 6,
+                  display: "block",
+                  boxShadow: "0 20px 50px rgba(74,53,39,.18)",
+                }}
+              />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ===== PLAYA BLANCA ===== */}
+      <section
+        id="playa"
+        data-theme="dark"
+        style={{
+          position: "relative",
+          zIndex: 2,
+          height: "96vh",
+          minHeight: 620,
+          overflow: "hidden",
+          display: "grid",
+          placeItems: "center",
+          background: "#9AA9A2",
+        }}
+      >
+        <div
+          data-playa-video=""
+          style={{ position: "absolute", inset: 0, clipPath: "inset(0 0 0 100%)", willChange: "clip-path,transform" }}
+        >
+          <video
+            src="https://video.wixstatic.com/video/11062b_c0f82e7370a041fb92d161623b53b27a/1080p/mp4/file.mp4"
+            autoPlay
+            muted
+            loop
+            playsInline
+            poster={wix("59862d_6edc706cf75948dfb049216adaa35e33", "w_2940,h_1494,al_c,q_90")}
+            style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              background:
+                "linear-gradient(180deg, rgba(26,19,12,.28), rgba(26,19,12,.12) 45%, rgba(30,22,13,.55))",
+            }}
+          />
+        </div>
+        <div
+          data-reveal="0"
+          style={{
+            position: "relative",
+            zIndex: 3,
+            textAlign: "center",
+            padding: "0 24px",
+            maxWidth: 900,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 18,
+          }}
+        >
+          <p style={eyebrow("rgba(255,255,255,.82)", 0)}>A pasos del río</p>
+          <h2
+            style={{
+              margin: 0,
+              fontFamily: SERIF,
+              fontWeight: 500,
+              fontSize: "clamp(44px,7vw,104px)",
+              lineHeight: 1.04,
+              color: "#FFFFFF",
+              textWrap: "balance",
+            }}
+          >
+            Playa Blanca
+          </h2>
+          <p
+            style={{
+              margin: 0,
+              maxWidth: 600,
+              fontSize: 16.5,
+              lineHeight: 1.8,
+              fontWeight: 300,
+              color: "rgba(255,255,255,.92)",
+              textWrap: "pretty",
+            }}
+          >
+            Frente a la posada, cruzando la calle, te espera nuestro parador sobre la costa del
+            Paraná. Playa, naturaleza, gastronomía y algunos de los atardeceres más lindos de la
+            región.
+          </p>
+          <a
+            href={WA}
+            target="_blank"
+            rel="noopener"
+            className="fx-link fx-brighten"
+            style={{
+              marginTop: 8,
+              display: "inline-block",
+              color: "#2E241B",
+              background: "#F5EFE6",
+              textDecoration: "none",
+              fontSize: 13.5,
+              letterSpacing: ".2em",
+              textTransform: "uppercase",
+              fontWeight: 500,
+              padding: "15px 34px",
+              borderRadius: 999,
+            }}
+          >
+            Conocer Playa Blanca
+          </a>
+        </div>
+      </section>
+
       {/* ===== GALERÍA ===== */}
       <section
         id="galeria"
@@ -1098,15 +1215,16 @@ export default function Page() {
 
       {/* ===== FOOTER ===== */}
       <footer
-        data-theme="dark"
+        data-theme="light"
         style={{
           position: "relative",
           zIndex: 2,
-          background: "#241B12",
-          backgroundImage:
-            "repeating-linear-gradient(90deg, rgba(255,255,255,.02) 0 2px, rgba(0,0,0,0) 2px 110px)",
+          background: "#EDE7DD",
+          backgroundImage: "url(/assets/texturas/palos-3.webp)",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
           padding: "96px 7vw 44px",
-          color: "#D8CBB8",
+          color: "#5C4D3C",
         }}
       >
         <div
@@ -1123,7 +1241,7 @@ export default function Page() {
           <img
             src="/assets/logo-blanco.avif"
             alt="El Destino — Posada Boutique"
-            style={{ width: 300, maxWidth: "70vw", height: "auto" }}
+            style={{ width: 300, maxWidth: "70vw", height: "auto", filter: "brightness(0) opacity(.85)" }}
           />
           <p
             style={{
@@ -1132,13 +1250,13 @@ export default function Page() {
               fontStyle: "italic",
               fontSize: "clamp(26px,3vw,38px)",
               lineHeight: 1.3,
-              color: "#F5EFE6",
+              color: "#3A2E22",
               textWrap: "balance",
             }}
           >
             Tu próxima pausa empieza acá.
           </p>
-          <p style={{ margin: "-12px 0 0", fontSize: 13, letterSpacing: ".28em", textTransform: "uppercase", color: "#C9B894" }}>
+          <p style={{ margin: "-12px 0 0", fontSize: 13, letterSpacing: ".28em", textTransform: "uppercase", color: "#8A6A4F" }}>
             Menos apuro. Más destino.
           </p>
           <div style={{ display: "flex", gap: 14, flexWrap: "wrap", justifyContent: "center" }}>
@@ -1148,13 +1266,13 @@ export default function Page() {
               rel="noopener"
               className="fx-link fx-ghost"
               style={{
-                color: "#EFE6D6",
+                color: "#3A2E22",
                 textDecoration: "none",
                 fontSize: 13,
                 letterSpacing: ".2em",
                 textTransform: "uppercase",
                 padding: "12px 24px",
-                border: "1px solid rgba(245,239,230,.3)",
+                border: "1px solid rgba(58,46,34,.3)",
                 borderRadius: 999,
               }}
             >
@@ -1166,13 +1284,13 @@ export default function Page() {
               rel="noopener"
               className="fx-link fx-ghost"
               style={{
-                color: "#EFE6D6",
+                color: "#3A2E22",
                 textDecoration: "none",
                 fontSize: 13,
                 letterSpacing: ".2em",
                 textTransform: "uppercase",
                 padding: "12px 24px",
-                border: "1px solid rgba(245,239,230,.3)",
+                border: "1px solid rgba(58,46,34,.3)",
                 borderRadius: 999,
               }}
             >
@@ -1198,8 +1316,8 @@ export default function Page() {
               WhatsApp
             </a>
           </div>
-          <div style={{ width: "100%", height: 1, background: "rgba(245,239,230,.14)", marginTop: 26 }} />
-          <p style={{ margin: 0, fontSize: 13, letterSpacing: ".14em", color: "rgba(216,203,184,.6)" }}>
+          <div style={{ width: "100%", height: 1, background: "rgba(58,46,34,.14)", marginTop: 26 }} />
+          <p style={{ margin: 0, fontSize: 13, letterSpacing: ".14em", color: "rgba(58,46,34,.55)" }}>
             El Destino · Posada Boutique — Paseo “Viva el Río” · Ramallo · Bs. As. · Argentina
           </p>
         </div>
