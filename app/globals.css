@@ -138,6 +138,10 @@ body {
     display: none !important;
   }
   /* Habitaciones: en pantallas chicas no hay pin, se apila vertical */
+  #habitaciones {
+    background-image: none !important;
+    background-attachment: scroll !important;
+  }
   [data-hscroll] {
     height: auto !important;
   }

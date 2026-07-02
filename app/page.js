@@ -12,14 +12,9 @@ const WA = "https://wa.me/5493407667777?text=Hola!%20Quiero%20reservar%20en%20El
 const wix = (id, fill) =>
   `https://static.wixstatic.com/media/${id}~mv2.jpg/v1/fill/${fill}/${id}~mv2.jpg`;
 
-// Fotos nuevas (HEIC → WebP, en /public/assets/habitaciones). "Single" mantiene su foto de Wix.
+// Fotos nuevas (HEIC → WebP, en /public/assets/habitaciones).
 const roomCards = [
   { src: "/assets/habitaciones/suite.webp", label: "Suite", text: "Amplitud y luz, toda en blanco." },
-  {
-    src: wix("59862d_96fbf2a4cc874ab5a460b04686917a36", "w_1500,h_1800,al_c,q_90"),
-    label: "Single",
-    text: "Acogedora, ideal para uno.",
-  },
   { src: "/assets/habitaciones/doble.webp", label: "Doble", text: "Calidez y carácter para dos." },
   { src: "/assets/habitaciones/doble-twin.webp", label: "Doble Twin", text: "Dos camas, en madera natural." },
   { src: "/assets/habitaciones/triple.webp", label: "Triple", text: "Espíritu marinero para tres." },
@@ -1238,11 +1233,6 @@ export default function Page() {
             textAlign: "center",
           }}
         >
-          <img
-            src="/assets/logo-blanco.avif"
-            alt="El Destino — Posada Boutique"
-            style={{ width: 300, maxWidth: "70vw", height: "auto", filter: "brightness(0) opacity(.85)" }}
-          />
           <p
             style={{
               margin: 0,
