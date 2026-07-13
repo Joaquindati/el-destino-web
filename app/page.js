@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { mountFx } from "./fx";
 
 /* ============================================================
@@ -14,36 +14,56 @@ const wix = (id, fill) =>
 
 // Fotos nuevas (HEIC → WebP, en /public/assets/habitaciones).
 const roomCards = [
-  { src: "/assets/habitaciones/suite.webp", label: "Suite", text: "Amplitud y luz, toda en blanco." },
-  { src: "/assets/habitaciones/doble.webp", label: "Doble", text: "Calidez y carácter para dos." },
-  { src: "/assets/habitaciones/doble-twin.webp", label: "Doble Twin", text: "Dos camas, en madera natural." },
-  { src: "/assets/habitaciones/triple.webp", label: "Triple", text: "Espíritu marinero para tres." },
-  { src: "/assets/habitaciones/cuadruple.webp", label: "Cuádruple", text: "Living náutico para la familia." },
+  { src: "/assets/habitaciones/suite.webp", label: "Suite", text: "La habitación de las grandes historias." },
+  { src: "/assets/habitaciones/doble.webp", label: "Doble", text: "Dos personas. Cero apuro." },
+  { src: "/assets/habitaciones/doble-twin.webp", label: "Doble Twin", text: "Viajar juntos. Descansar mejor." },
+  { src: "/assets/habitaciones/triple.webp", label: "Triple", text: "Más espacio. Más momentos." },
+  { src: "/assets/habitaciones/cuadruple.webp", label: "Cuádruple", text: "Los mejores viajes se comparten." },
 ];
 
+// Nota: se quitaron de la galería las fotos que ya aparecen en otras secciones
+// (0533244a, 8eca0eed, 203c7c91 → Eventos; a6389a83 → Piscina/Actividades).
 const STRIP_A_IDS = [
-  "59862d_0533244ab7674d5bbafba80bde43841e",
-  "59862d_a6389a83de71481cbd863671b44a7989",
   "59862d_fbaa5d3043fc4f828190f73a0c1a7c30",
   "59862d_619cc26d8abf4ba5acba9d23c52b38e8",
-  "59862d_203c7c915b9148a698ff7ad74e8d6adc",
   "59862d_19b807ab22724c42aaff5ea21cc62ff2",
 ];
 const STRIP_B_IDS = [
   "59862d_bfe530b50530490fb01e9b2947895e91",
-  "59862d_8eca0eed171f4730805a37062843f134",
   "59862d_32980b2d16d34a0fb38ca4b0ed0559e9",
   "59862d_a5f90d5c137345dcb16f9434dbab55f1",
   "59862d_3443279cb4174caca25ed7b544725947",
   "59862d_183a9fa455fc4f7fa695dce4fb02d635",
 ];
+// Fotos locales agregadas a la galería (7 por tira).
+const STRIP_A_LOCAL = [
+  "/assets/galeria/g-01.jpg",
+  "/assets/galeria/g-02.jpg",
+  "/assets/galeria/g-03.jpg",
+  "/assets/galeria/g-04.jpg",
+  "/assets/galeria/g-05.jpg",
+  "/assets/galeria/g-06.jpg",
+  "/assets/galeria/g-07.jpg",
+];
+const STRIP_B_LOCAL = [
+  "/assets/galeria/g-08.jpg",
+  "/assets/galeria/g-09.jpg",
+  "/assets/galeria/g-10.jpg",
+  "/assets/galeria/g-11.jpg",
+  "/assets/galeria/g-12.jpg",
+  "/assets/galeria/g-13.jpg",
+  "/assets/galeria/g-14.jpg",
+];
 // strip() duplicates the list so the marquee can wrap seamlessly
-const buildStrip = (ids) => {
-  const u = ids.map((id) => ({ src: wix(id, "w_936,h_702,al_c,q_85") }));
+const buildStrip = (ids, local = []) => {
+  const u = [
+    ...ids.map((id) => ({ src: wix(id, "w_936,h_702,al_c,q_85") })),
+    ...local.map((src) => ({ src })),
+  ];
   return u.concat(u);
 };
-const stripA = buildStrip(STRIP_A_IDS);
-const stripB = buildStrip(STRIP_B_IDS);
+const stripA = buildStrip(STRIP_A_IDS, STRIP_A_LOCAL);
+const stripB = buildStrip(STRIP_B_IDS, STRIP_B_LOCAL);
 
 // TODO Eventos: relleno temporal con fotos de la galería. Reemplazar por las imágenes reales de eventos.
 const EVENT_IMAGES = [
@@ -66,23 +86,34 @@ const AMENITIES = [
 
 const ACTIVITIES = [
   {
-    bg: "59862d_fb2284a3d7ab4365b6e27cc1fe61ee41",
-    alt: "Náutica en el Río Paraná",
+    src: "/assets/actividades/lago.avif",
+    alt: "Lago natural al atardecer",
     title: "Lago & Oratorio",
     items: ["Lago natural", "Oratorio único", "Atardeceres"],
   },
   {
-    bg: "59862d_d8d1c738c9da465cb8d42b48e4a11647",
-    alt: "Pileta y relax",
+    src: "/assets/actividades/piscina.jpg",
+    alt: "Piscina rodeada de palmeras al atardecer",
     title: "Piscina",
     items: ["Piscina al aire libre", "Reposeras & solárium", "Rincones para relajarse"],
   },
   {
-    bg: "59862d_b32504c35cdf4d73a78a9ee5e01f27e4",
-    alt: "Naturaleza y aire libre",
+    src: "/assets/actividades/naturaleza.jpg",
+    alt: "Flores y naturaleza a contraluz",
     title: "Naturaleza",
     items: ["Senderos", "Vistas y rincones", "Espacios al aire libre"],
   },
+];
+
+// Slider Playa Blanca (fotos del parador). Auto-avanza con fade cruzado.
+const PLAYA_SLIDES = [
+  "/assets/playa/playa-1.jpg",
+  "/assets/playa/playa-2.jpg",
+  "/assets/playa/playa-3.jpg",
+  "/assets/playa/playa-4.jpg",
+  "/assets/playa/playa-5.jpg",
+  "/assets/playa/playa-6.jpg",
+  "/assets/playa/playa-7.jpg",
 ];
 
 const CONTACT = [
@@ -133,9 +164,20 @@ const bodyText = (margin) => ({
    Page
    ============================================================ */
 export default function Page() {
+  const [playaSlide, setPlayaSlide] = useState(0);
+
   useEffect(() => {
     const cleanup = mountFx();
     return cleanup;
+  }, []);
+
+  // Auto-avance del slider de Playa Blanca
+  useEffect(() => {
+    const id = setInterval(
+      () => setPlayaSlide((s) => (s + 1) % PLAYA_SLIDES.length),
+      4800
+    );
+    return () => clearInterval(id);
   }, []);
 
   return (
@@ -343,7 +385,7 @@ export default function Page() {
           </a>
         </div>
         <a
-          href="#habitaciones"
+          href="#lugar"
           aria-label="Bajar"
           style={{
             position: "absolute",
@@ -360,6 +402,120 @@ export default function Page() {
         </a>
       </header>
 
+      {/* ===== EL LUGAR ===== */}
+      <section
+        id="lugar"
+        data-theme="light"
+        style={{
+          position: "relative",
+          zIndex: 2,
+          marginTop: -40,
+          borderRadius: "40px 40px 0 0",
+          padding: "150px 7vw 110px",
+          background: "linear-gradient(180deg,#FAF7F1, #F3ECDF)",
+          boxShadow: "0 -34px 60px rgba(30,22,15,.32)",
+        }}
+      >
+        <div
+          data-grid="2"
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1.05fr .95fr",
+            gap: 64,
+            alignItems: "center",
+            maxWidth: 1280,
+            margin: "0 auto",
+          }}
+        >
+          <div data-reveal="0">
+            <p style={eyebrow("#A3835F", "0 0 18px")}>Menos apuro. Más destino.</p>
+            <h2
+              style={{
+                margin: "0 0 26px",
+                fontFamily: SERIF,
+                fontWeight: 500,
+                fontSize: "clamp(32px,3.4vw,46px)",
+                lineHeight: 1.2,
+                color: "#3A2E22",
+                textWrap: "balance",
+              }}
+              data-type="x"
+            >
+              Tu próxima pausa empieza acá.
+            </h2>
+            <p style={bodyText("0 0 16px")}>
+              Naturaleza, confort y experiencias que invitan a disfrutar sin apuros. Habitaciones
+              equipadas, desayunos artesanales y amplios espacios al aire libre.
+            </p>
+            <p style={bodyText("0 0 34px")}>
+              Cada detalle está pensado para que tu única preocupación sea disfrutar.
+            </p>
+            <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+              <div style={{ width: 40, height: 1, background: "#C5AE8C" }} />
+              <p
+                style={{
+                  margin: 0,
+                  fontFamily: SERIF,
+                  fontStyle: "italic",
+                  fontSize: 21,
+                  color: "#8A6A4F",
+                }}
+              >
+                Aquí solo soplan buenos vientos
+              </p>
+            </div>
+          </div>
+          <div style={{ position: "relative" }} data-reveal="0">
+            <div
+              style={{
+                position: "absolute",
+                inset: "26px -26px -26px 26px",
+                backgroundImage: "url(/assets/texturas/palos-2.webp)",
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                borderRadius: 4,
+              }}
+            />
+            <img
+              src={wix("59862d_bbb055a7a18a4f5db0da30d0faecc77e", "w_1872,h_1404,al_c,q_90")}
+              alt="Cabañas de tronco blanco junto al Río Paraná"
+              data-parallax="0.05"
+              style={{
+                position: "relative",
+                willChange: "transform",
+                width: "100%",
+                aspectRatio: "4 / 3.1",
+                objectFit: "cover",
+                borderRadius: 4,
+                display: "block",
+                boxShadow: "0 24px 60px rgba(74,53,39,.22)",
+              }}
+            />
+          </div>
+        </div>
+        <p
+          data-parallax="0.08"
+          className="quote-big"
+          style={{
+            maxWidth: 880,
+            margin: "90px auto 0",
+            willChange: "transform",
+            textAlign: "center",
+            fontFamily: SERIF,
+            fontStyle: "italic",
+            fontWeight: 400,
+            fontSize: "clamp(26px,2.8vw,36px)",
+            lineHeight: 1.5,
+            color: "#6B563F",
+            textWrap: "balance",
+          }}
+          data-reveal="0"
+          data-type="x"
+        >
+          Porque algunas escapadas no se miden en días. Se miden en momentos.
+        </p>
+      </section>
+
       {/* ===== HABITACIONES (scroll horizontal con pin) ===== */}
       <section
         id="habitaciones"
@@ -368,14 +524,11 @@ export default function Page() {
         style={{
           position: "relative",
           zIndex: 2,
-          marginTop: -40,
-          borderRadius: "40px 40px 0 0",
           background: "#EDE7DD",
           backgroundImage: "url(/assets/texturas/palos-3.webp)",
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundAttachment: "fixed",
-          boxShadow: "0 -34px 60px rgba(30,22,15,.32)",
         }}
       >
         <div
@@ -578,117 +731,6 @@ export default function Page() {
         </div>
       </section>
 
-      {/* ===== EL LUGAR ===== */}
-      <section
-        id="lugar"
-        data-theme="light"
-        style={{
-          position: "relative",
-          zIndex: 2,
-          padding: "130px 7vw 110px",
-          background: "linear-gradient(180deg,#FAF7F1, #F3ECDF)",
-        }}
-      >
-        <div
-          data-grid="2"
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1.05fr .95fr",
-            gap: 64,
-            alignItems: "center",
-            maxWidth: 1280,
-            margin: "0 auto",
-          }}
-        >
-          <div data-reveal="0">
-            <p style={eyebrow("#A3835F", "0 0 18px")}>Menos apuro. Más destino.</p>
-            <h2
-              style={{
-                margin: "0 0 26px",
-                fontFamily: SERIF,
-                fontWeight: 500,
-                fontSize: "clamp(32px,3.4vw,46px)",
-                lineHeight: 1.2,
-                color: "#3A2E22",
-                textWrap: "balance",
-              }}
-              data-type="x"
-            >
-              Tu próxima pausa empieza acá.
-            </h2>
-            <p style={bodyText("0 0 16px")}>
-              Naturaleza, confort y experiencias que invitan a disfrutar sin apuros. Habitaciones
-              equipadas, desayunos artesanales y amplios espacios al aire libre.
-            </p>
-            <p style={bodyText("0 0 34px")}>
-              Cada detalle está pensado para que tu única preocupación sea disfrutar.
-            </p>
-            <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-              <div style={{ width: 40, height: 1, background: "#C5AE8C" }} />
-              <p
-                style={{
-                  margin: 0,
-                  fontFamily: SERIF,
-                  fontStyle: "italic",
-                  fontSize: 21,
-                  color: "#8A6A4F",
-                }}
-              >
-                Aquí solo soplan buenos vientos
-              </p>
-            </div>
-          </div>
-          <div style={{ position: "relative" }} data-reveal="0">
-            <div
-              style={{
-                position: "absolute",
-                inset: "26px -26px -26px 26px",
-                backgroundImage: "url(/assets/texturas/palos-2.webp)",
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-                borderRadius: 4,
-              }}
-            />
-            <img
-              src={wix("59862d_bbb055a7a18a4f5db0da30d0faecc77e", "w_1872,h_1404,al_c,q_90")}
-              alt="Cabañas de tronco blanco junto al Río Paraná"
-              data-parallax="0.05"
-              style={{
-                position: "relative",
-                willChange: "transform",
-                width: "100%",
-                aspectRatio: "4 / 3.1",
-                objectFit: "cover",
-                borderRadius: 4,
-                display: "block",
-                boxShadow: "0 24px 60px rgba(74,53,39,.22)",
-              }}
-            />
-          </div>
-        </div>
-        <p
-          data-parallax="0.08"
-          className="quote-big"
-          style={{
-            maxWidth: 880,
-            margin: "90px auto 0",
-            willChange: "transform",
-            textAlign: "center",
-            fontFamily: SERIF,
-            fontStyle: "italic",
-            fontWeight: 400,
-            fontSize: "clamp(26px,2.8vw,36px)",
-            lineHeight: 1.5,
-            color: "#6B563F",
-            textWrap: "balance",
-          }}
-          data-reveal="0"
-          data-type="x"
-        >
-          Porque algunas escapadas no se miden en días. Se miden en momentos.
-        </p>
-      </section>
-
       {/* ===== ACTIVIDADES ===== */}
       <section
         id="actividades"
@@ -696,7 +738,7 @@ export default function Page() {
         style={{
           position: "relative",
           zIndex: 2,
-          padding: "130px 7vw 110px",
+          padding: "130px 7vw 0",
           background: "#EFE6D6",
           backgroundImage: "radial-gradient(circle at 50% 0%, #F6F0E4, #E7DAC2)",
         }}
@@ -746,7 +788,7 @@ export default function Page() {
             <img
               key={`bg-${i}`}
               data-act-bg={String(i)}
-              src={wix(a.bg, "w_2200,h_1467,al_c,q_90")}
+              src={a.src}
               alt={a.alt}
               style={{
                 position: "absolute",
@@ -801,7 +843,7 @@ export default function Page() {
                 )}
                 <img
                   data-act-img=""
-                  src={wix(a.bg, "w_1100,h_1300,al_c,q_85")}
+                  src={a.src}
                   alt=""
                   style={{
                     position: "absolute",
@@ -867,7 +909,7 @@ export default function Page() {
       </section>
 
       {/* ===== EVENTOS ===== */}
-      {/* TODO: reemplazar texto e imágenes con el contenido que pasó el cliente (enviado el viernes). */}
+      {/* TODO: reemplazar las 3 imágenes (aún de relleno) por las fotos reales de eventos del cliente. */}
       <section
         id="eventos"
         data-theme="light"
@@ -876,10 +918,6 @@ export default function Page() {
           zIndex: 2,
           padding: "130px 7vw 110px",
           background: "#FCFAF6",
-          backgroundImage: "url(/assets/texturas/palos-3.webp)",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundBlendMode: "multiply",
         }}
       >
         <div style={{ maxWidth: 1280, margin: "0 auto" }}>
@@ -897,11 +935,12 @@ export default function Page() {
               }}
               data-type="x"
             >
-              Celebrá en El Destino
+              Eventos boutique. Momentos inolvidables.
             </h2>
             <p style={bodyText(0)}>
-              Un entorno único para casamientos, encuentros y eventos especiales, rodeado de
-              naturaleza y a pasos del río. (Texto provisorio — a reemplazar con el contenido del cliente.)
+              Celebraciones sociales y empresariales en un entorno natural único. Gastronomía de
+              excelencia, atención personalizada y espacios pensados para disfrutar cada encuentro y
+              convertirlo en un recuerdo inolvidable.
             </p>
           </div>
           <div
@@ -951,15 +990,23 @@ export default function Page() {
           data-playa-video=""
           style={{ position: "absolute", inset: 0, clipPath: "inset(0 0 0 100%)", willChange: "clip-path,transform" }}
         >
-          <video
-            src="https://video.wixstatic.com/video/11062b_c0f82e7370a041fb92d161623b53b27a/1080p/mp4/file.mp4"
-            autoPlay
-            muted
-            loop
-            playsInline
-            poster={wix("59862d_6edc706cf75948dfb049216adaa35e33", "w_2940,h_1494,al_c,q_90")}
-            style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
-          />
+          {PLAYA_SLIDES.map((src, i) => (
+            <img
+              key={src}
+              src={src}
+              alt=""
+              aria-hidden="true"
+              style={{
+                position: "absolute",
+                inset: 0,
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                opacity: i === playaSlide ? 1 : 0,
+                transition: "opacity 1.4s ease",
+              }}
+            />
+          ))}
           <div
             style={{
               position: "absolute",
@@ -1012,27 +1059,38 @@ export default function Page() {
             Paraná. Playa, naturaleza, gastronomía y algunos de los atardeceres más lindos de la
             región.
           </p>
-          <a
-            href={WA}
-            target="_blank"
-            rel="noopener"
-            className="fx-link fx-brighten"
-            style={{
-              marginTop: 8,
-              display: "inline-block",
-              color: "#2E241B",
-              background: "#F5EFE6",
-              textDecoration: "none",
-              fontSize: 13.5,
-              letterSpacing: ".2em",
-              textTransform: "uppercase",
-              fontWeight: 500,
-              padding: "15px 34px",
-              borderRadius: 999,
-            }}
-          >
-            Conocer Playa Blanca
-          </a>
+        </div>
+        <div
+          style={{
+            position: "absolute",
+            left: 0,
+            right: 0,
+            bottom: 26,
+            zIndex: 4,
+            display: "flex",
+            justifyContent: "center",
+            gap: 12,
+          }}
+        >
+          {PLAYA_SLIDES.map((_, i) => (
+            <button
+              key={i}
+              type="button"
+              aria-label={`Ver foto ${i + 1} de Playa Blanca`}
+              onClick={() => setPlayaSlide(i)}
+              className="fx-link"
+              style={{
+                width: i === playaSlide ? 30 : 10,
+                height: 10,
+                padding: 0,
+                border: "none",
+                borderRadius: 999,
+                cursor: "pointer",
+                background: i === playaSlide ? "#F5EFE6" : "rgba(245,239,230,.5)",
+                transition: "width .4s ease, background .4s ease",
+              }}
+            />
+          ))}
         </div>
       </section>
 
@@ -1215,9 +1273,6 @@ export default function Page() {
           position: "relative",
           zIndex: 2,
           background: "#EDE7DD",
-          backgroundImage: "url(/assets/texturas/palos-3.webp)",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
           padding: "96px 7vw 44px",
           color: "#5C4D3C",
         }}
