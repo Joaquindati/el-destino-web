@@ -3,7 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "gen:eventos": "node scripts/gen-event-photos.mjs",
+    "predev": "node scripts/gen-event-photos.mjs",
     "dev": "next dev",
+    "prebuild": "node scripts/gen-event-photos.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"

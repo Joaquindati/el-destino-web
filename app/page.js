@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { mountFx } from "./fx";
+import eventPhotos from "./eventPhotos.json";
 
 /* ============================================================
    Data (ported from the prototype's renderVals / helper methods)
@@ -65,12 +66,16 @@ const buildStrip = (ids, local = []) => {
 const stripA = buildStrip(STRIP_A_IDS, STRIP_A_LOCAL);
 const stripB = buildStrip(STRIP_B_IDS, STRIP_B_LOCAL);
 
-// TODO Eventos: relleno temporal con fotos de la galería. Reemplazar por las imágenes reales de eventos.
+// Relleno temporal (se usa solo si /public/assets/eventos está vacío).
 const EVENT_IMAGES = [
   wix("59862d_0533244ab7674d5bbafba80bde43841e", "w_900,h_675,al_c,q_85"),
   wix("59862d_8eca0eed171f4730805a37062843f134", "w_900,h_675,al_c,q_85"),
   wix("59862d_203c7c915b9148a698ff7ad74e8d6adc", "w_900,h_675,al_c,q_85"),
 ];
+// Pool del slider de Eventos. Se nutre de las fotos reales en
+// /public/assets/eventos (manifiesto generado por scripts/gen-event-photos.mjs).
+// Si todavía no hay fotos cargadas, cae al relleno de arriba.
+const EVENT_POOL = eventPhotos.length ? eventPhotos : EVENT_IMAGES;
 
 const AMENITIES = [
   "Terraza privada",
@@ -159,6 +164,103 @@ const bodyText = (margin) => ({
   color: "#5C4D3C",
   textWrap: "pretty",
 });
+
+/* ============================================================
+   Slider de Eventos
+   3 fotos siempre visibles (1 en mobile). Sin botones ni navegación.
+   No se deslizan: cada tile se DESVANECE (crossfade) hacia otra foto
+   del pool, de a uno por vez y sin repetir la que muestran los demás.
+   ============================================================ */
+function EventSlider({ pool }) {
+  const TILES = 3;
+  const [tiles, setTiles] = useState(() =>
+    Array.from({ length: TILES }, (_, i) => {
+      const idx = pool.length ? i % pool.length : 0;
+      return { front: idx, back: idx, showFront: true };
+    })
+  );
+  const nextRef = useRef(pool.length ? TILES % pool.length : 0);
+  const turnRef = useRef(0);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const mq = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)");
+    if (mq && mq.matches) return; // respeta reduced-motion: fotos fijas
+    if (pool.length <= TILES) return; // con 3 o menos no hay a qué desvanecerse
+
+    const id = setInterval(() => {
+      setTiles((prev) => {
+        const t = turnRef.current % TILES;
+        turnRef.current += 1;
+        // próxima foto que no esté visible en ningún otro tile
+        const visible = new Set(prev.map((x) => (x.showFront ? x.front : x.back)));
+        let ni = nextRef.current;
+        let guard = 0;
+        while (visible.has(ni) && guard < pool.length) {
+          ni = (ni + 1) % pool.length;
+          guard++;
+        }
+        nextRef.current = (ni + 1) % pool.length;
+        const copy = prev.slice();
+        const cur = { ...copy[t] };
+        // cargo la nueva foto en la capa oculta y recién ahí cruzo el fade
+        if (cur.showFront) {
+          cur.back = ni;
+          cur.showFront = false;
+        } else {
+          cur.front = ni;
+          cur.showFront = true;
+        }
+        copy[t] = cur;
+        return copy;
+      });
+    }, 2600);
+    return () => clearInterval(id);
+  }, [pool]);
+
+  return (
+    <div
+      data-grid="3"
+      data-event-slider=""
+      data-reveal="0"
+      style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 18 }}
+    >
+      {tiles.map((t, i) => (
+        <div
+          key={i}
+          data-ev-tile=""
+          style={{
+            position: "relative",
+            aspectRatio: "4 / 3",
+            borderRadius: 6,
+            overflow: "hidden",
+            background: "#EFE7DA",
+            boxShadow: "0 20px 50px rgba(74,53,39,.18)",
+          }}
+        >
+          {[t.front, t.back].map((imgIdx, layer) => (
+            <img
+              key={layer}
+              src={pool[imgIdx]}
+              alt=""
+              aria-hidden="true"
+              draggable="false"
+              style={{
+                position: "absolute",
+                inset: 0,
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                opacity: (layer === 0) === t.showFront ? 1 : 0,
+                transition: "opacity 1300ms cubic-bezier(.4,0,.2,1)",
+              }}
+            />
+          ))}
+        </div>
+      ))}
+    </div>
+  );
+}
 
 /* ============================================================
    Page
@@ -943,31 +1045,7 @@ export default function Page() {
               convertirlo en un recuerdo inolvidable.
             </p>
           </div>
-          <div
-            data-grid="3"
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(3, 1fr)",
-              gap: 18,
-            }}
-            data-reveal="0"
-          >
-            {EVENT_IMAGES.map((src, i) => (
-              <img
-                key={i}
-                src={src}
-                alt={`El Destino — eventos ${i + 1}`}
-                style={{
-                  width: "100%",
-                  aspectRatio: "4 / 3",
-                  objectFit: "cover",
-                  borderRadius: 6,
-                  display: "block",
-                  boxShadow: "0 20px 50px rgba(74,53,39,.18)",
-                }}
-              />
-            ))}
-          </div>
+          <EventSlider pool={EVENT_POOL} />
         </div>
       </section>
 

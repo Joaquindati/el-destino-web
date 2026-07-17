@@ -93,6 +93,10 @@ body {
     grid-template-columns: 1fr !important;
     gap: 38px !important;
   }
+  /* Slider de Eventos: en mobile se ve un solo tile (que igual hace crossfade) */
+  [data-event-slider] [data-ev-tile]:nth-child(n + 2) {
+    display: none !important;
+  }
   [data-grid-rev] > div:first-child {
     order: 2;
   }
