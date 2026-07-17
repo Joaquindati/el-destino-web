@@ -38,22 +38,22 @@ const STRIP_B_IDS = [
 ];
 // Fotos locales agregadas a la galería (7 por tira).
 const STRIP_A_LOCAL = [
-  "/assets/galeria/g-01.jpg",
-  "/assets/galeria/g-02.jpg",
-  "/assets/galeria/g-03.jpg",
-  "/assets/galeria/g-04.jpg",
-  "/assets/galeria/g-05.jpg",
-  "/assets/galeria/g-06.jpg",
-  "/assets/galeria/g-07.jpg",
+  "/assets/galeria/g-01.webp",
+  "/assets/galeria/g-02.webp",
+  "/assets/galeria/g-03.webp",
+  "/assets/galeria/g-04.webp",
+  "/assets/galeria/g-05.webp",
+  "/assets/galeria/g-06.webp",
+  "/assets/galeria/g-07.webp",
 ];
 const STRIP_B_LOCAL = [
-  "/assets/galeria/g-08.jpg",
-  "/assets/galeria/g-09.jpg",
-  "/assets/galeria/g-10.jpg",
-  "/assets/galeria/g-11.jpg",
-  "/assets/galeria/g-12.jpg",
-  "/assets/galeria/g-13.jpg",
-  "/assets/galeria/g-14.jpg",
+  "/assets/galeria/g-08.webp",
+  "/assets/galeria/g-09.webp",
+  "/assets/galeria/g-10.webp",
+  "/assets/galeria/g-11.webp",
+  "/assets/galeria/g-12.webp",
+  "/assets/galeria/g-13.webp",
+  "/assets/galeria/g-14.webp",
 ];
 // strip() duplicates the list so the marquee can wrap seamlessly
 const buildStrip = (ids, local = []) => {
@@ -97,13 +97,13 @@ const ACTIVITIES = [
     items: ["Lago natural", "Oratorio único", "Atardeceres"],
   },
   {
-    src: "/assets/actividades/piscina.jpg",
+    src: "/assets/actividades/piscina.webp",
     alt: "Piscina rodeada de palmeras al atardecer",
     title: "Piscina",
     items: ["Piscina al aire libre", "Reposeras & solárium", "Rincones para relajarse"],
   },
   {
-    src: "/assets/actividades/naturaleza.jpg",
+    src: "/assets/actividades/naturaleza.webp",
     alt: "Flores y naturaleza a contraluz",
     title: "Naturaleza",
     items: ["Senderos", "Vistas y rincones", "Espacios al aire libre"],
@@ -112,13 +112,13 @@ const ACTIVITIES = [
 
 // Slider Playa Blanca (fotos del parador). Auto-avanza con fade cruzado.
 const PLAYA_SLIDES = [
-  "/assets/playa/playa-1.jpg",
-  "/assets/playa/playa-2.jpg",
-  "/assets/playa/playa-3.jpg",
-  "/assets/playa/playa-4.jpg",
-  "/assets/playa/playa-5.jpg",
-  "/assets/playa/playa-6.jpg",
-  "/assets/playa/playa-7.jpg",
+  "/assets/playa/playa-1.webp",
+  "/assets/playa/playa-2.webp",
+  "/assets/playa/playa-3.webp",
+  "/assets/playa/playa-4.webp",
+  "/assets/playa/playa-5.webp",
+  "/assets/playa/playa-6.webp",
+  "/assets/playa/playa-7.webp",
 ];
 
 const CONTACT = [
@@ -242,6 +242,8 @@ function EventSlider({ pool }) {
             <img
               key={layer}
               src={pool[imgIdx]}
+              loading="lazy"
+              decoding="async"
               alt=""
               aria-hidden="true"
               draggable="false"
@@ -267,6 +269,18 @@ function EventSlider({ pool }) {
    ============================================================ */
 export default function Page() {
   const [playaSlide, setPlayaSlide] = useState(0);
+  // El video del hero se resuelve recién en el cliente para elegir la calidad
+  // según el ancho de pantalla (480p en mobile, 720p en desktop) y para no
+  // descargar los ~25 MB del 1080p en la carga inicial. Hasta entonces se ve
+  // el poster. Wix sirve /480p, /720p y /1080p para el mismo id de video.
+  const [heroVideoSrc, setHeroVideoSrc] = useState(null);
+
+  useEffect(() => {
+    const base =
+      "https://video.wixstatic.com/video/11062b_7488edba38234bd69b0603ad498efdf5";
+    const res = window.matchMedia("(max-width: 768px)").matches ? "480p" : "720p";
+    setHeroVideoSrc(`${base}/${res}/mp4/file.mp4`);
+  }, []);
 
   useEffect(() => {
     const cleanup = mountFx();
@@ -388,11 +402,12 @@ export default function Page() {
         }}
       >
         <video
-          src="https://video.wixstatic.com/video/11062b_7488edba38234bd69b0603ad498efdf5/1080p/mp4/file.mp4"
+          src={heroVideoSrc || undefined}
           autoPlay
           muted
           loop
           playsInline
+          preload="none"
           poster={wix("59862d_bbb055a7a18a4f5db0da30d0faecc77e", "w_1872,h_1404,al_c,q_90")}
           data-hero-video="x"
           style={{
@@ -429,6 +444,8 @@ export default function Page() {
           <img
             src="/assets/logo-blanco.avif"
             alt="El Destino — Posada Boutique"
+            fetchPriority="high"
+            decoding="async"
             style={{ width: "min(460px, 72vw)", height: "auto" }}
             data-reveal="100"
           />
@@ -580,6 +597,8 @@ export default function Page() {
             />
             <img
               src={wix("59862d_bbb055a7a18a4f5db0da30d0faecc77e", "w_1872,h_1404,al_c,q_90")}
+              loading="lazy"
+              decoding="async"
               alt="Cabañas de tronco blanco junto al Río Paraná"
               data-parallax="0.05"
               style={{
@@ -739,6 +758,8 @@ export default function Page() {
                 <img
                   src={card.src}
                   alt={card.label}
+                  loading="lazy"
+                  decoding="async"
                   style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
                 />
                 <div
@@ -891,6 +912,8 @@ export default function Page() {
               key={`bg-${i}`}
               data-act-bg={String(i)}
               src={a.src}
+              loading="lazy"
+              decoding="async"
               alt={a.alt}
               style={{
                 position: "absolute",
@@ -946,6 +969,8 @@ export default function Page() {
                 <img
                   data-act-img=""
                   src={a.src}
+                  loading="lazy"
+                  decoding="async"
                   alt=""
                   style={{
                     position: "absolute",
@@ -1072,6 +1097,8 @@ export default function Page() {
             <img
               key={src}
               src={src}
+              loading="lazy"
+              decoding="async"
               alt=""
               aria-hidden="true"
               style={{
@@ -1198,6 +1225,8 @@ export default function Page() {
             <img
               key={`a-${i}`}
               src={g.src}
+              loading="lazy"
+              decoding="async"
               alt="El Destino — galería"
               style={{ height: 300, width: "auto", aspectRatio: "4 / 3", objectFit: "cover", borderRadius: 4, display: "block" }}
             />
@@ -1208,6 +1237,8 @@ export default function Page() {
             <img
               key={`b-${i}`}
               src={g.src}
+              loading="lazy"
+              decoding="async"
               alt="El Destino — galería"
               style={{ height: 300, width: "auto", aspectRatio: "4 / 3", objectFit: "cover", borderRadius: 4, display: "block" }}
             />

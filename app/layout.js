@@ -23,6 +23,11 @@ export default function RootLayout({ children }) {
   return (
     <html lang="es">
       <head>
+        {/* LCP del hero: el logo se precarga con prioridad alta. */}
+        <link rel="preload" as="image" href="/assets/logo-blanco.avif" fetchPriority="high" />
+        {/* El poster y el video del hero salen de Wix: abrir la conexión antes. */}
+        <link rel="preconnect" href="https://static.wixstatic.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://video.wixstatic.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
