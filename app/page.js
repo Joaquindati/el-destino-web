@@ -271,9 +271,12 @@ export default function Page() {
   const [playaSlide, setPlayaSlide] = useState(0);
   // El video del hero se resuelve recién en el cliente para elegir la calidad
   // según el ancho de pantalla (480p en mobile, 720p en desktop) y para no
-  // descargar los ~25 MB del 1080p en la carga inicial. Hasta entonces se ve
-  // el poster. Wix sirve /480p, /720p y /1080p para el mismo id de video.
+  // descargar los ~25 MB del 1080p en la carga inicial. Hasta entonces el hero
+  // es negro. Wix sirve /480p, /720p y /1080p para el mismo id de video.
   const [heroVideoSrc, setHeroVideoSrc] = useState(null);
+  // El video arranca invisible y aparece con un fade recién cuando tiene buffer,
+  // así no se ve el arranque entrecortado sobre una conexión lenta.
+  const [heroVideoReady, setHeroVideoReady] = useState(false);
 
   useEffect(() => {
     const base =
@@ -281,6 +284,14 @@ export default function Page() {
     const res = window.matchMedia("(max-width: 768px)").matches ? "480p" : "720p";
     setHeroVideoSrc(`${base}/${res}/mp4/file.mp4`);
   }, []);
+
+  // Red para que el hero nunca quede negro para siempre si el video falla o
+  // el browser no llega a emitir canplay/loadeddata.
+  useEffect(() => {
+    if (!heroVideoSrc) return;
+    const t = setTimeout(() => setHeroVideoReady(true), 6000);
+    return () => clearTimeout(t);
+  }, [heroVideoSrc]);
 
   useEffect(() => {
     const cleanup = mountFx();
@@ -397,7 +408,7 @@ export default function Page() {
           display: "grid",
           placeItems: "center",
           overflow: "clip",
-          background: "#2E241B",
+          background: "#000",
           transition: "opacity .5s ease",
         }}
       >
@@ -407,8 +418,9 @@ export default function Page() {
           muted
           loop
           playsInline
-          preload="none"
-          poster={wix("59862d_bbb055a7a18a4f5db0da30d0faecc77e", "w_1872,h_1404,al_c,q_90")}
+          preload="auto"
+          onCanPlay={() => setHeroVideoReady(true)}
+          onLoadedData={() => setHeroVideoReady(true)}
           data-hero-video="x"
           style={{
             position: "absolute",
@@ -417,6 +429,8 @@ export default function Page() {
             height: "100%",
             objectFit: "cover",
             transform: "scale(1.07)",
+            opacity: heroVideoReady ? 1 : 0,
+            transition: "opacity 1.2s ease",
           }}
         />
         <div
@@ -1260,7 +1274,6 @@ export default function Page() {
       >
         <div
           data-grid="2"
-          data-grid-rev="x"
           style={{
             display: "grid",
             gridTemplateColumns: ".9fr 1.1fr",

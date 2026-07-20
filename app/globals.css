@@ -106,6 +106,13 @@ body {
   #habitaciones [data-grid="2"] {
     padding: 0 7vw !important;
   }
+  /* Card de cierre de Habitaciones: en mobile va sin botón */
+  #habitaciones [data-hscroll-end] a {
+    display: none !important;
+  }
+  #habitaciones [data-hscroll-end] p {
+    margin-bottom: 0 !important;
+  }
   /* Actividades: en pantallas sin hover, las 3 zonas se apilan, cada una con su foto */
   [data-activities] {
     height: auto !important;
