@@ -1487,6 +1487,12 @@ export default function Page() {
           <p style={{ margin: 0, fontSize: 13, letterSpacing: ".14em", color: "rgba(58,46,34,.55)" }}>
             El Destino · Posada Boutique — Paseo “Viva el Río” · Ramallo · Bs. As. · Argentina
           </p>
+          <p style={{ margin: "-18px 0 0", fontSize: 12, letterSpacing: ".14em", color: "rgba(58,46,34,.55)" }}>
+            Desarrollo:{" "}
+            <a href="https://joaquindati.com" target="_blank" rel="noopener" style={{ color: "inherit" }}>
+              Joaquín Dati
+            </a>
+          </p>
         </div>
       </footer>
     </div>
