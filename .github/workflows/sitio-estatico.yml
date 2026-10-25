@@ -1,0 +1,76 @@
+name: Sitio estático
+
+# Compila la landing como HTML estático y lo publica en la rama `sitio`.
+# Hostinger (hPanel → Avanzado → Git) baja esa rama a public_html: el sitio se sirve sin un proceso Node,
+# que en el hosting compartido ocupa memoria y procesos aunque nadie visite la página.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sitio-estatico
+  cancel-in-progress: true
+
+jobs:
+  publicar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Build estático
+        run: npm run build
+        env:
+          EXPORTAR: "1"
+          NEXT_TELEMETRY_DISABLED: "1"
+
+      # El http → https lo hace el CDN de Hostinger: acá no va, para no armar un bucle de redirecciones.
+      - name: .htaccess
+        run: |
+          cat > out/.htaccess <<'EOF'
+          ErrorDocument 404 /404.html
+          Options -Indexes
+          <IfModule mod_headers.c>
+            Header always set X-Content-Type-Options "nosniff"
+            Header always set Referrer-Policy "strict-origin-when-cross-origin"
+            Header always set X-Frame-Options "SAMEORIGIN"
+          </IfModule>
+          EOF
+          cat > out/_next/static/.htaccess <<'EOF'
+          <IfModule mod_headers.c>
+            Header set Cache-Control "public, max-age=31536000, immutable"
+          </IfModule>
+          EOF
+
+      - name: Comprobar el sitio
+        run: |
+          grep -q "<title>El Destino" out/index.html
+          test -f out/404.html
+          test -d out/_next/static
+          test -d out/assets
+
+      # Un commit nuevo encima de la rama (sin forzar): hPanel actualiza con un git pull común.
+      - name: Publicar en la rama sitio
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd out
+          git init -q -b sitio
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git remote add origin "https://x-access-token:${TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          if git fetch -q --depth 1 origin sitio 2>/dev/null; then git reset -q --soft FETCH_HEAD; fi
+          git add -A
+          if git diff --cached --quiet; then echo "Sin cambios en el sitio"; exit 0; fi
+          git commit -q -m "Sitio estático de ${GITHUB_SHA::7}"
+          git push -q origin sitio
